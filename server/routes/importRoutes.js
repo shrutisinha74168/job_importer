@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const importJobs = require("../controllers/importController");
+const importController = require("../controllers/importController");
 
-// ye route jab hit hoga tab feed URL se jobs import karega
+// POST route for importing jobs
 router.post("/", async (req, res) => {
   const { feedUrl } = req.body;
 
@@ -10,8 +10,13 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ message: "Feed URL is required" });
   }
 
-  await importJobs(feedUrl);
-  res.json({ message: "Job import started successfully!" });
+  try {
+    await importController.importJobs(feedUrl);
+    res.json({ message: "Job import started successfully!" });
+  } catch (error) {
+    console.error("Import error:", error);
+    res.status(500).json({ message: "Failed to import jobs", error: error.message });
+  }
 });
 
 module.exports = router;
